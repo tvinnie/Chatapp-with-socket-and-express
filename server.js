@@ -3,7 +3,7 @@ const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
 const formatMessage = require('./utils/messages');
-const { userJoin, getCurrentUser,userLeaveChat, getRoomUsers } = require('./utils/users');
+const { userJoin, getCurrentUser, userLeaveChat, getRoomUsers } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,7 +17,7 @@ const botName = 'ChatCord Bot'
 //  Run when client connects
 io.on('connection', socket => {
     socket.on('joinRoom', ({ username, room }) => {
-    
+
         const user = userJoin(socket.id, username, room);
         socket.join(user.room);
 
@@ -29,7 +29,7 @@ io.on('connection', socket => {
 
 
         // Send users and room info
-        io.to(user.room).emit('roomUsers',{
+        io.to(user.room).emit('roomUsers', {
             room: user.room,
             users: getRoomUsers(user.room)
         });
@@ -46,10 +46,15 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         const user = userLeaveChat(socket.id);
 
-        if(user){
+        if (user) {
             io.to(user.room).emit('message', formatMessage(botName, `${user.username} has left the chat`));
-        }
 
+            // Send users and room info
+            io.to(user.room).emit('roomUsers', {
+                room: user.room,
+                users: getRoomUsers(user.room),
+            });
+        }
     })
 })
 
