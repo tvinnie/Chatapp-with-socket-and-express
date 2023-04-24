@@ -16,7 +16,7 @@ const socket = io();
 socket.emit('joinRoom',{ username, room});
 
 // Get room and users
-socket.on('roomUsers', ({ username, room })=>{
+socket.on('roomUsers', ({ room, users }) => {
     outputRoomName(room);
     outputUsers(users);
 });
